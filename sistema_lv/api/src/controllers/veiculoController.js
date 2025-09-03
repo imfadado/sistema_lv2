@@ -1,10 +1,124 @@
-import * as Veiculo from '../models/VeiculoModel.js';
+        import * as Veiculo from '../models/VeiculoModel.js';
 
-export const cadastrar = async (req, res) => {
+        export const cadastrar = async (req, res) => {
+            try {
+                const veiculo = req.body;
+
+                // Verificar se o corpo da requisição contém os dados necessários
+                if (!veiculo || Object.keys(veiculo).length === 0) {
+                    return res.status(400).json({
+                        success: false,
+                        status: 400,
+                        message: 'Dados do veículo não fornecidos'
+                    });
+                }
+                // Validar os dados do veículo
+                if (!veiculo.modelo || !veiculo.ano_fabricacao || !veiculo.ano_modelo || !veiculo.cor || !veiculo.num_portas || !veiculo.categoria_id || !veiculo.montadora_id || !veiculo.tipo_cambio || !veiculo.tipo_direcao) {
+                    return res.status(400).json({
+                        success: false,
+                        status: 400,
+                        message: 'Dados do veículo incompletos ou inválidos'
+                    });
+                }
+                
+                const novoVeiculo = await Veiculo.cadastrar(veiculo);   
+                res.status(201).json({
+                    success: true,
+                    status: 201,
+                    message: 'Veículo cadastrado com sucesso',
+                    veiculoId: novoVeiculo
+                });
+            } catch (error) {
+                res.status(500).json({
+                    success: false,
+                    status: 500,
+                    message: 'Erro ao cadastrar veículo',
+                    error: error.message
+                });
+            }
+        };
+
+        export const consultar = async (req, res) => {
+            res.status(200).json({
+                    success: true,
+                    status: 200,
+                    message: 'Em desenvolvimentosss'
+                });
+        }
+
+        export const consultarTodos = async (req, res) => {
+            const search = req.query.search || '';
+            try {
+            const veiculos = await Veiculo.consultarTodos(search);
+                // Verificar se foram encontrados veículos
+                if (veiculos.length === 0) {
+                    return res.status(404).json({
+                        success: false,
+                        status: 404,
+                        message: 'Nenhum veículo encontrado',
+                        data: []
+                    });
+                }
+                res.status(200).json({
+                    success: true,
+                    status: 200,
+                    message: 'Veículos consultados com sucesso',
+                    data: veiculos
+                });
+            } catch (error) {
+                res.status(500).json({
+                    success: false,
+                    status: 500,
+                    message: 'Erro ao consultar veículos',
+                    error: error.message
+                });
+            }
+        };
+
+export const consultarPorId = async (req, res) => {
+    const { id } = req.params;
+
     try {
-        const veiculo = req.body;
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                status: 400,
+                message: 'ID do veículo não fornecido'
+            });
+        }
 
-        // Verificar se o corpo da requisição contém os dados necessários
+        const veiculo = await Veiculo.consultarPorId(id);
+
+        res.status(200).json({
+            success: true,
+            status: 200,
+            message: 'Veículo consultado com sucesso',
+            data: veiculo
+        });
+    } catch (error) {
+        res.status(404).json({
+            success: false,
+            status: 404,
+            message: 'Veículo não encontrado',
+            error: error.message
+        });
+    }
+};
+
+export const alterar = async (req, res) => {
+    const { id } = req.params;
+    const veiculo = req.body;
+
+    try {
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                status: 400,
+                message: 'ID do veículo não fornecido'
+            });
+        }
+
+        // Verificar se os dados foram fornecidos
         if (!veiculo || Object.keys(veiculo).length === 0) {
             return res.status(400).json({
                 success: false,
@@ -12,7 +126,8 @@ export const cadastrar = async (req, res) => {
                 message: 'Dados do veículo não fornecidos'
             });
         }
-        // Validar os dados do veículo
+
+        // Validação dos campos obrigatórios
         if (!veiculo.modelo || !veiculo.ano_fabricacao || !veiculo.ano_modelo || !veiculo.cor || !veiculo.num_portas || !veiculo.categoria_id || !veiculo.montadora_id || !veiculo.tipo_cambio || !veiculo.tipo_direcao) {
             return res.status(400).json({
                 success: false,
@@ -20,56 +135,48 @@ export const cadastrar = async (req, res) => {
                 message: 'Dados do veículo incompletos ou inválidos'
             });
         }
-        
-        const novoVeiculo = await Veiculo.cadastrar(veiculo);   
-        res.status(201).json({
+
+        await Veiculo.alterar(id, veiculo);
+
+        res.status(200).json({
             success: true,
-            status: 201,
-            message: 'Veículo cadastrado com sucesso',
-            veiculoId: novoVeiculo
+            status: 200,
+            message: 'Veículo atualizado com sucesso'
         });
     } catch (error) {
         res.status(500).json({
             success: false,
             status: 500,
-            message: 'Erro ao cadastrar veículo',
+            message: 'Erro ao atualizar veículo',
             error: error.message
         });
     }
 };
 
-export const consultar = async (req, res) => {
-     res.status(200).json({
-            success: true,
-            status: 200,
-            message: 'Em desenvolvimentosss'
-        });
-}
+export const deletar = async (req, res) => {
+    const { id } = req.params;
 
-export const consultarTodos = async (req, res) => {
-    const search = req.query.search || '';
     try {
-    const veiculos = await Veiculo.consultarTodos(search);
-        // Verificar se foram encontrados veículos
-        if (veiculos.length === 0) {
-            return res.status(404).json({
+        if (!id) {
+            return res.status(400).json({
                 success: false,
-                status: 404,
-                message: 'Nenhum veículo encontrado',
-                data: []
+                status: 400,
+                message: 'ID do veículo não fornecido'
             });
         }
+
+        await Veiculo.deletar(id);
+
         res.status(200).json({
             success: true,
             status: 200,
-            message: 'Veículos consultados com sucesso',
-            data: veiculos
+            message: 'Veículo deletado com sucesso'
         });
     } catch (error) {
-        res.status(500).json({
+        res.status(404).json({
             success: false,
-            status: 500,
-            message: 'Erro ao consultar veículos',
+            status: 404,
+            message: 'Erro ao deletar veículo',
             error: error.message
         });
     }

@@ -1,4 +1,4 @@
-import * as cadastrar from '../models/CategoriaModel.js';
+import * as categoriaModel from '../models/CategoriaModel.js';
 
 export const cadastrar = async (req, res) => {
     try {
@@ -13,7 +13,7 @@ export const cadastrar = async (req, res) => {
             });
         }
         // Validar os dados do veículo
-        if (!categoria.id || !categoria.tipo || !categoria.icone || !categoria.data_cadastro || !categoria.data_alteracao ) {
+        if (  !categoria.tipo || !categoria.icone  ) {
             return res.status(400).json({
                 success: false,
                 status: 400,
@@ -21,7 +21,7 @@ export const cadastrar = async (req, res) => {
             });
         }
         
-        const novoCategoria = await categoria.cadastrar(categoria);   
+        const novoCategoria = await categoriaModel.cadastrar(categoria);   
         res.status(201).json({
             success: true,
             status: 201,

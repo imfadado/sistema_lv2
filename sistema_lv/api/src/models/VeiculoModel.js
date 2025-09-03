@@ -68,3 +68,82 @@ export const consultarTodos = async (search) => {
         }
     }
 } 
+export const consultarPorId = async (id) => {
+    const cx = await pool.getConnection();
+    try {
+        const query = `SELECT * FROM veiculo WHERE id = ?`;
+        const [rows] = await cx.query(query, [id]);
+
+        if (rows.length === 0) {
+            throw new Error("Veículo não encontrado");
+        }
+
+        return rows[0];
+    } catch (error) {
+        throw error;
+    } finally {
+        if (cx) {
+            cx.release();
+        }
+    }
+}
+export const alterar = async (id, veiculo) => {
+    const cx = await pool.getConnection();
+    try {
+        const { 
+            modelo,
+            ano_fabricacao,
+            ano_modelo,
+            cor,
+            num_portas,
+            fotos,
+            categoria_id,
+            montadora_id,
+            tipo_cambio,
+            tipo_direcao 
+        } = veiculo;
+
+        const query = `
+            UPDATE veiculo 
+            SET modelo = ?, ano_fabricacao = ?, ano_modelo = ?, cor = ?, num_portas = ?, fotos = ?, categoria_id = ?, montadora_id = ?, tipo_cambio = ?, tipo_direcao = ?
+            WHERE id = ?`;
+
+        const [result] = await cx.query(query, [
+            modelo, ano_fabricacao, ano_modelo, cor, num_portas, fotos,
+            categoria_id, montadora_id, tipo_cambio, tipo_direcao, id
+        ]);
+
+        if (result.affectedRows === 0) {
+            throw new Error("Veículo não encontrado ou dados iguais aos anteriores");
+        }
+
+        return true;
+    } catch (error) {
+        throw error;
+    } finally {
+        if (cx) {
+            cx.release();
+        }
+    }
+}
+
+
+export const deletar = async (id) => {
+    const cx = await pool.getConnection();
+    try {
+        const query = `DELETE FROM veiculo WHERE id = ?`;
+        const [result] = await cx.query(query, [id]);
+
+        if (result.affectedRows === 0) {
+            throw new Error("Veículo não encontrado");
+        }
+
+        return true;
+    } catch (error) {
+        throw error;
+    } finally {
+        if (cx) {
+            cx.release();
+        }
+    }
+}

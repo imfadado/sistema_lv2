@@ -7,18 +7,17 @@ export const cadastrar = async (categoria) => {
     try {
         // Desestruturar o objeto veiculo
         const { 
-            id,
+        
             tipo,
-            icone,
-            data_cadastro,
-            data_alteracao,
+            icone
+    
            } = categoria; 
 
         // Query para inserir um novo veículo
-        const query = `INSERT INTO categoria (id, tipo, icone, data_cadastro, data_alteracao) VALUES (?, ?, ?, ?, ?)`;
+        const query = `INSERT INTO categoria ( tipo, icone) VALUES ( ?, ?)`;
 
         // Executar a query com os valores do veículo
-        const [result] = await cx.query(query,[id, tipo, icone, data_cadastro, data_alteracao]);
+        const [result] = await cx.query(query,[, tipo, icone, ]);
     
         // Verificar se a inserção foi bem-sucedida
         if (result.affectedRows === 0) {
